@@ -9,7 +9,7 @@ import (
 type User struct {
 	ID        int       `json:"id" db:"id"`
 	Username  string    `json:"username" db:"username"`
-	Password  string    `json:"password" db:"password"` // В реальном приложении хранить только хеш
+	Password  string    `json:"password" db:"password"` // Use hash ONLY in prod
 	CreatedAt time.Time `json:"created_at" db:"created_at"`
 }
 

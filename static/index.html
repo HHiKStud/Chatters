@@ -36,20 +36,20 @@
     </div>
 
     <script>
-        // При загрузке страницы
+        // Turning on theme toggler as soon as the page loads
         initTheme();
 
         let token = '';
         let ws = null;
         
-        // DOM элементы
+        // DOM elements
         const authSection = document.getElementById('authSection');
         const chatSection = document.getElementById('chatSection');
         const messages = document.getElementById('messages');
         const messageInput = document.getElementById('messageInput');
         const sendButton = document.getElementById('sendButton');
         
-        // Функции для работы с API
+        // Api func
         async function register() {
             const username = document.getElementById('regUsername').value;
             const password = document.getElementById('regPassword').value;
@@ -85,14 +85,11 @@
                 const data = await response.json();
                 token = data.token;
                 
-                // Показываем чат и скрываем форму авторизации
                 authSection.classList.add('hidden');
                 chatSection.classList.remove('hidden');
                 
-                // Подключаемся к WebSocket
                 connectWebSocket();
 
-                // Загружаем сообщения из чата
                 loadMessageHistory();
             } else {
                 alert('Login failed: ' + (await response.text()));
@@ -106,7 +103,7 @@
             console.log('Connecting to WebSocket:', wsUrl);
             ws = new WebSocket(wsUrl);
 
-            // Таймаут для переподключения
+            // Reconnection timeout
             const reconnectTimeout = 3000;
 
             ws.onopen = function() {
@@ -152,7 +149,6 @@
             };
         }
 
-        // Отправка сообщения
         function sendMessage() {
             const text = messageInput.value.trim();
             if (!text || !ws || ws.readyState !== WebSocket.OPEN) {
@@ -161,7 +157,7 @@
             }
             
             try {
-                ws.send(text); // Отправляем только текст
+                ws.send(text); 
                 messageInput.value = '';
             } catch (e) {
                 console.error('Error sending message:', e);
@@ -198,7 +194,7 @@
                     messagesContainer.appendChild(messageElement);
                 });
                 
-                // Прокрутка вниз после загрузки
+                // Scrolling down after logging in
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
                 
             } catch (error) {
@@ -206,7 +202,7 @@
             }
         }
 
-        // Вспомогательная функция форматирования времени
+        // Additional func for formatting timestamps
         function formatTime(isoString) {
             const date = new Date(isoString);
             return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -227,18 +223,6 @@
             messages.scrollTop = messages.scrollHeight;
         }
                 
-        // Обработчики событий
-        document.getElementById('registerBtn').addEventListener('click', register);
-        document.getElementById('loginBtn').addEventListener('click', login);
-        
-        sendButton.addEventListener('click', sendMessage);
-        messageInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
-        });
-
-        // Функция переключения темы
         function toggleTheme() {
             const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
@@ -246,22 +230,31 @@
             document.documentElement.setAttribute('data-theme', newTheme);
             localStorage.setItem('theme', newTheme);
             
-            // Обновляем иконку
-            document.querySelector('.theme-icon').textContent = newTheme === 'dark' ? '🌓' : '🌒';
+            // Icon switch
+            document.querySelector('.theme-icon').textContent = newTheme === 'dark' ? '🌙' : '☀️';
         }
 
-        // Инициализация темы
+        // Theme initialization
         function initTheme() {
             const savedTheme = localStorage.getItem('theme') || 'dark';
             document.documentElement.setAttribute('data-theme', savedTheme);
-            document.querySelector('.theme-icon').textContent = savedTheme === 'dark' ? '🌓' : '🌒';
+            document.querySelector('.theme-icon').textContent = savedTheme === 'dark' ? '🌙' : '☀️';
         }
 
-        // Вешаем обработчик
-        document.getElementById('themeToggle').addEventListener('click', toggleTheme);
-
+        // Authentication handlers
+        document.getElementById('registerBtn').addEventListener('click', register);
+        document.getElementById('loginBtn').addEventListener('click', login);
         
+        // Sending messages by pressing ENTER
+        sendButton.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Theme Toggler
+        document.getElementById('themeToggle').addEventListener('click', toggleTheme);
     </script>
-    
 </body>
 </html>

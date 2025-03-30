@@ -16,7 +16,7 @@ type Config struct {
 func LoadConfig() *Config {
 	return &Config{
 		ServerAddress:   ":8080",
-		JWTSecret:       "your-secret-key", // В продакшене используйте env переменные
+		JWTSecret:       "your-secret-key", // Use .env in prod
 		TokenExpiration: 24 * time.Hour,
 		DBHost:          "127.0.0.1",
 		DBName:          "chat_app",

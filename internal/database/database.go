@@ -13,6 +13,7 @@ type Database struct {
 	DB *sql.DB
 }
 
+// Connecting to a DB
 func NewDatabase(cfg *config.Config) (*Database, error) {
 	connStr := fmt.Sprintf("host=%s port=%s  user=%s password=%s dbname=%s sslmode=disable",
 		cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBPassword, cfg.DBName)
@@ -34,6 +35,7 @@ func (d *Database) Close() error {
 	return d.DB.Close()
 }
 
+// Creating needed DBs if they're not there yet
 func (d *Database) Init() error {
 	_, err := d.DB.Exec(`
 		CREATE TABLE IF NOT EXISTS users (

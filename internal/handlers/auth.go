@@ -33,7 +33,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Проверка существования пользователя
+	// Checking if user already exists
 	var exists bool
 	err = db.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE username = $1)", user.Username).Scan(&exists)
 	if err != nil {
@@ -46,6 +46,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Hashing the password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		log.Printf("Register error (hash password): %v", err)
@@ -53,7 +54,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Сохранение пользователя в БД
+	// Saving user to DB
 	_, err = db.Exec("INSERT INTO users (username, password_hash) VALUES ($1, $2)",
 		user.Username, string(hashedPassword))
 	if err != nil {
@@ -117,7 +118,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		Expires:  expirationTime,
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   false, // Для разработки, в production должно быть true
+		Secure:   false, // Set to True in prod
 		SameSite: http.SameSiteLaxMode,
 	})
 
@@ -128,12 +129,12 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		tokenString := ""
 
-		// Проверяем cookie
+		// Checking the cookies
 		cookie, err := r.Cookie("token")
 		if err == nil {
 			tokenString = cookie.Value
 		} else {
-			// Проверяем Authorization header
+			// Checking Authorization header
 			authHeader := r.Header.Get("Authorization")
 			if authHeader != "" {
 				parts := strings.Split(authHeader, " ")
@@ -158,33 +159,8 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		// Добавляем username в контекст запроса
+		// Adding username to the query context
 		ctx := context.WithValue(r.Context(), "username", claims.Username)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	}
 }
-
-// func EnableCORS(next http.HandlerFunc) http.HandlerFunc {
-// 	return func(w http.ResponseWriter, r *http.Request) {
-// 		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:8080")
-// 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-// 		w.Header().Set("Access-Control-Allow-Credentials", "true")
-// 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-
-// 		if r.Method == "OPTIONS" {
-// 			w.WriteHeader(http.StatusOK)
-// 			return
-// 		}
-
-// 		next(w, r)
-// 	}
-// }
-
-// func WsMiddleware(next http.HandlerFunc) http.HandlerFunc {
-// 	return func(w http.ResponseWriter, r *http.Request) {
-// 		w.Header().Set("Access-Control-Allow-Origin", "*")
-// 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-// 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-// 		next(w, r)
-// 	}
-// }

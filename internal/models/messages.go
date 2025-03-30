@@ -14,7 +14,7 @@ type Message struct {
 	Content string    `json:"content" db:"content"`
 	SentAt  time.Time `json:"sent_at" db:"sent_at"`
 
-	// Это поле не хранится в бд, нужно для удобства
+	// It's not stored in a DB but still helpful
 	Username string `json:"username,omitempty" db:""`
 }
 
@@ -27,12 +27,13 @@ func NewMessageHandler(db *sql.DB) *MessageHandler {
 }
 
 func (h *MessageHandler) GetMessagesHandler(w http.ResponseWriter, r *http.Request) {
-	// Устанавливаем правильный Content-Type
+	// Setting the correct content-type
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
-	// Получаем username текущего пользователя из контекста
+	// Getting username from context
 	currentUser, _ := r.Context().Value("username").(string)
 
+	// Getting the last 100 messages from DB
 	rows, err := h.db.Query(`
         SELECT m.id, u.username, m.content, m.sent_at 
         FROM messages m
@@ -41,7 +42,7 @@ func (h *MessageHandler) GetMessagesHandler(w http.ResponseWriter, r *http.Reque
         LIMIT 100
     `)
 	if err != nil {
-		log.Printf("DB query error: %v", err)
+		log.Printf("DB query error: %v", err) // logs
 		http.Error(w, `{"error": "Database error"}`, http.StatusInternalServerError)
 		return
 	}
@@ -80,13 +81,13 @@ func (h *MessageHandler) GetMessagesHandler(w http.ResponseWriter, r *http.Reque
 			Username: msg.Username,
 			Text:     msg.Content,
 			Time:     msg.SentAt.Format(time.RFC3339),
-			IsMine:   msg.Username == currentUser, // Check if the message is from the current user
+			IsMine:   msg.Username == currentUser, // Checking if the message is from the current user
 		})
 	}
 
-	// Кодируем JSON с обработкой ошибок
+	// Encoding
 	if err := json.NewEncoder(w).Encode(messages); err != nil {
-		log.Printf("JSON encode error: %v", err)
+		log.Printf("JSON encode error: %v", err) // logs
 		http.Error(w, `{"error": "JSON encoding failed"}`, http.StatusInternalServerError)
 	}
 }

@@ -20,7 +20,7 @@ func (c *Client) ReadPump(h *Hub) {
 		c.Conn.Close()
 	}()
 
-	// Получаем user_id из бд при подключении к ней
+	// Getting userId after connecting to DB
 	var userID int
 	err := h.DB.QueryRow("SELECT id FROM USERS WHERE username = $1", c.Username).Scan(&userID)
 	if err != nil {
@@ -37,15 +37,14 @@ func (c *Client) ReadPump(h *Hub) {
 			break
 		}
 
-		// Преобразуем сообщение в строку
 		content := string(messageBytes)
 
-		// Сохраняем сообщение в БД
+		// Saving message to a DB
 		if err := h.SaveMessage(userID, content); err != nil {
-			log.Println("Failed to save message:", err)
+			log.Println("Failed to save message:", err) // logs
 		}
 
-		// Создаем структуру сообщения для рассылки
+		// Structure for being sent
 		msg := struct {
 			Username string    `json:"username"`
 			Text     string    `json:"text"`
@@ -56,16 +55,16 @@ func (c *Client) ReadPump(h *Hub) {
 			Time:     time.Now(),
 		}
 
-		// Сериализуем в JSON
+		// Serializing
 		msgBytes, err := json.Marshal(msg)
 		if err != nil {
 			log.Println("JSON marshal error:", err)
 			continue
 		}
 
-		// Отправляем в broadcast
+		// Broadcasting
 		h.Broadcast <- msgBytes
-		log.Printf("Message broadcasted: %s", string(msgBytes)) // Логи
+		log.Printf("Message broadcasted: %s", string(msgBytes)) // logs
 	}
 }
 
