@@ -105,6 +105,8 @@ button:hover {
     overflow-y: auto;
     scrollbar-width: thin;
     scrollbar-color: var(--primary-color) var(--bg-secondary);
+    scroll-behavior: smooth; /* Для плавности */
+    will-change: scroll-position; /* Оптимизация */
 }
 
 #messages::-webkit-scrollbar {

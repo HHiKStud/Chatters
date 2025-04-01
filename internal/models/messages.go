@@ -13,9 +13,16 @@ type Message struct {
 	UserID  int       `json:"user_id" db:"user_id"`
 	Content string    `json:"content" db:"content"`
 	SentAt  time.Time `json:"sent_at" db:"sent_at"`
+	ReplyTo *Reply    `json:"replyTo,omitempty"`
 
 	// It's not stored in a DB but still helpful
 	Username string `json:"username,omitempty" db:""`
+}
+
+type Reply struct {
+	ID       int    `json:"id"`
+	Username string `json:"username"`
+	Text     string `json:"text"`
 }
 
 type MessageHandler struct {

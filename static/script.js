@@ -51,8 +51,8 @@ async function login() {
         chatSection.classList.remove('hidden');
         
         connectWebSocket();
-
         loadMessageHistory();
+        setupReply();
     } else {
         alert('Login failed: ' + (await response.text()));
     }
@@ -93,6 +93,7 @@ function connectWebSocket() {
             `;
             
             document.getElementById('messages').appendChild(messageElement);
+            scrollToBottom('auto');
         } catch (e) {
             console.error('Error parsing message:', e);
         }
@@ -155,10 +156,7 @@ async function loadMessageHistory() {
             
             messagesContainer.appendChild(messageElement);
         });
-        
-        // Scrolling down after logging in
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        
+        scrollToBottom('auto');
     } catch (error) {
         console.error('Error loading messages:', error);
     }
@@ -182,9 +180,51 @@ function addMessageToChat(msg) {
     `;
     
     messages.appendChild(messageElement);
-    messages.scrollTop = messages.scrollHeight;
+    scrollToBottom('auto');
 }
-        
+
+function scrollToBottom(behavior = 'smooth') {
+    const messagesContainer = document.getElementById('messages');
+    if (!messagesContainer) return;
+    
+    requestAnimationFrame(() => {
+        messagesContainer.scrollTo({
+            top: messagesContainer.scrollHeight,
+            behavior: behavior
+        });
+    });
+    
+    console.log('Scrolling to bottom:', messagesContainer.scrollHeight); // logs
+}
+
+// Reply functions
+function setupReply() {
+    let replyingTo = null;
+    
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.reply-btn')) {
+            const msgElement = e.target.closest('.message');
+            replyingTo = {
+                id: msgElement.dataset.id,
+                username: msgElement.dataset.username,
+                text: msgElement.querySelector('.text').textContent
+            };
+            showReplyPreview();
+        }
+    });
+    
+    function showReplyPreview() {
+        const preview = document.createElement('div');
+        preview.className = 'reply-preview';
+        preview.innerHTML = `
+            <div>Replying to ${replyingTo.username}: ${replyingTo.text.substring(0, 30)}...</div>
+            <button class="cancel-reply">×</button>
+        `;
+        document.getElementById('messageInput').before(preview);
+    }
+}
+
+// Theme changer
 function toggleTheme() {
     const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
@@ -206,6 +246,9 @@ function initTheme() {
 // Authentication handlers
 document.getElementById('registerBtn').addEventListener('click', register);
 document.getElementById('loginBtn').addEventListener('click', login);
+
+// Auto-scrolling
+window.addEventListener('load', () => scrollToBottom('auto'));
 
 // Sending messages by pressing ENTER
 sendButton.addEventListener('click', sendMessage);
