@@ -14,7 +14,7 @@ body {
 }
 
 #hello {
-    color: #ffffff;
+    color: var(--bg-color)
 }
 
 h1 {
@@ -66,7 +66,7 @@ input[type="password"]:focus {
 
 button {
     background-color: var(--primary-color);
-    color: #000;
+    color: var(--bg-color);
     border: none;
     padding: 12px 20px;
     border-radius: 5px;
