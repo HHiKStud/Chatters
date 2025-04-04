@@ -6,8 +6,6 @@
 }
 
 body {
-    background-color: #0f0c29;
-    background-image: url("https://images.wallpaperscraft.com/image/single/mountains_coast_aerial_view_147555_1600x900.jpg");
     color: var(--text-primary);
     height: 100vh;
     display: flex;
@@ -273,6 +271,8 @@ button:hover {
     --primary-color: #7b2cbf;
     --primary-variant: #9d4edd;
     --secondary-color: #03dac6;
+    background-image: url("https://images.wallpaperscraft.com/image/single/eruption_lava_volcano_45542_1920x1080.jpg");
+    background-color: var(--primary-variant);
 }
 
 [data-theme="dark"] {
@@ -285,4 +285,6 @@ button:hover {
     --text-secondary: #a0a0a0;
     --error-color: #cf6679;
     --divider-color: #696868;
+    background-color: #0f0c29;
+    background-image: url("https://images.wallpaperscraft.com/image/single/mountains_coast_aerial_view_147555_1600x900.jpg");
 }

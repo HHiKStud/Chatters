@@ -118,7 +118,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		Expires:  expirationTime,
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   false, // Set to True in prod
+		Secure:   false, // Better set it to True in prod
 		SameSite: http.SameSiteLaxMode,
 	})
 
